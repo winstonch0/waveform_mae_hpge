@@ -84,4 +84,9 @@ tmp/
 temp/
 
 # Internal docs
-IMPORTANT.md
+IMPORTANT.mddata/
+logs/
+checkpoints/
+lightning_logs/
+*.out
+*.err
