@@ -90,3 +90,7 @@ checkpoints/
 lightning_logs/
 *.out
 *.err
+training_metrics/
+training_metrics_1k/
+training_curve_*.png
+training_curve_*.pdf
