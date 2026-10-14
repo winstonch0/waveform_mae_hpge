@@ -69,22 +69,31 @@ class MajoranaDataset(Dataset):
                     else:  # zero padding
                         waveform = np.concatenate([waveform[shift_abs:], np.zeros(shift_abs)])
 
-        if self.constants is not None:
-            waveform = (waveform - self.constants.WAVEFORM_MEAN) / self.constants.WAVEFORM_STD
-
+        # Compute derivatives BEFORE waveform normalization.
+        # This keeps runtime preprocessing consistent with compute_stats.py.
         gradient = np.gradient(waveform)
-        
+
         if self.use_second_deriv:
             second_deriv = np.gradient(gradient)
-            if self.constants is not None:
-                gradient = (gradient - self.constants.GRADIENT_MEAN) / self.constants.GRADIENT_STD
-                second_deriv = (second_deriv - self.constants.SECOND_DERIV_MEAN) / self.constants.SECOND_DERIV_STD
         else:
-            # Use zeros as placeholder when second derivative is disabled
             second_deriv = np.zeros_like(gradient)
-            if self.constants is not None:
-                gradient = (gradient - self.constants.GRADIENT_MEAN) / self.constants.GRADIENT_STD
 
+        # Normalize each feature independently using statistics
+        # computed in dataset/compute_stats.py.
+        if self.constants is not None:
+            waveform = (
+                waveform - self.constants.WAVEFORM_MEAN
+            ) / self.constants.WAVEFORM_STD
+
+            gradient = (
+                gradient - self.constants.GRADIENT_MEAN
+            ) / self.constants.GRADIENT_STD
+
+            if self.use_second_deriv:
+                second_deriv = (
+                    second_deriv - self.constants.SECOND_DERIV_MEAN
+                ) / self.constants.SECOND_DERIV_STD
+                
         if self.window_size > 1:
             waveform = waveform.reshape(-1, self.window_size)
             gradient = gradient.reshape(-1, self.window_size)
