@@ -116,6 +116,11 @@ class MAEWaveformEncoder(nn.Module):
             x = x * (1.0 + gamma[:, None, :]) + beta[:, None, :]  # (B, T, d_model)
         
         x = self.input_dropout(x)
+
+        # Add positional encoding BEFORE masking so visible tokens
+        # retain their original temporal positions.
+        x = self.pos_encoding(x)
+
         
         # Apply masking if provided
         if mask is not None:
@@ -132,9 +137,6 @@ class MAEWaveformEncoder(nn.Module):
                 index=ids_shuffle[:, :num_visible].unsqueeze(-1).expand(-1, -1, self.d_model)
             )
             
-            # Add positional encoding to visible tokens only
-            x_visible = self.pos_encoding(x_visible)
-            
             # Pass through transformer
             for layer in self.transformer:
                 x_visible = layer(x_visible)
@@ -142,7 +144,6 @@ class MAEWaveformEncoder(nn.Module):
             return x_visible, ids_restore
         else:
             # No masking - process all tokens
-            x = self.pos_encoding(x)
             for layer in self.transformer:
                 x = layer(x)
             return x, None
