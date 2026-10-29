@@ -94,3 +94,15 @@ training_metrics/
 training_metrics_1k/
 training_curve_*.png
 training_curve_*.pdf
+
+# Generated experiment results
+gradient_peak_analysis*/
+reconstruction_evaluation*/
+reconstruction_plots*/
+training_metrics*/
+training_plots*/
+large14_holdout_evaluation/
+
+# Training/runtime outputs
+logs/
+*.ckpt
